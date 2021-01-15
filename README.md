@@ -1,6 +1,6 @@
 # fix-umlauts
 
-This little project can be used to fix missing umlauts that occured do to encoding errors. It consists of two small scripts. The first one `convert.py` is used to convert a dictionary, either a .dic file or an Open-/LibreOffice dictionary, to the needed file format.
+This little project can be used to fix missing umlauts that occurred do to encoding errors. It consists of two small scripts. The first one `convert.py` is used to convert a dictionary, either a .dic file or an Open-/LibreOffice dictionary, to the needed file format.
 
 ```
 $ python3 convert.py <dictionary> <output_file>
