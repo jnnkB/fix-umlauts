@@ -4,8 +4,6 @@ import itertools
 with open(sys.argv[2], "r") as f:
     text = f.read()
 
-print(text)
-
 for front_char, back_char in itertools.product([" ", ".", ""], repeat=2):
     with open(sys.argv[1], "r") as f2:
         for line in f2.readlines():
