@@ -1,4 +1,4 @@
-import sys
+import argparse
 import itertools
 import csv
 
@@ -23,14 +23,33 @@ def replace_words(text, word_list):
     return text
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Fix missing umlauts that occurred do to encoding errors "
+    )
+    parser.add_argument(
+        "csv_file",
+        type=str,
+        help="the CSV file to use for fixing",
+    )
+    parser.add_argument(
+        "file_to_fix",
+        type=str,
+        help="the file that should be fixed",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    with open(sys.argv[2], "r") as f:
+    args = parse_args()
+    with open(args.file_to_fix, "r") as f:
         text = f.read()
 
-    with open(sys.argv[1], "r") as csvfile:
+    with open(args.csv_file, "r") as csvfile:
         word_list = read_word_list(csvfile)
 
     text = replace_words(text, word_list)
 
-    with open(sys.argv[2], "w") as f:
+    with open(args.file_to_fix, "w") as f:
         f.write(text)
