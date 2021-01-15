@@ -30,7 +30,7 @@ if __name__ == "__main__":
     with open(sys.argv[1], "r") as csvfile:
         word_list = read_word_list(csvfile)
 
-    replace_words(text, word_list)
+    text = replace_words(text, word_list)
 
     with open(sys.argv[2], "w") as f:
         f.write(text)
