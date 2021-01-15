@@ -1,9 +1,9 @@
-import sys
 import unicodedata
 from string import punctuation
 from zipfile import ZipFile, is_zipfile
 from itertools import chain
 import csv
+import argparse
 
 
 def umlaut_variations(umlaut):
@@ -47,6 +47,11 @@ def read_zipfile(source_file):
         return myzip.read(dict_file)
 
 
+def read_file(file_path):
+    with open(file_path, "rb") as f:
+        return f.read()
+
+
 def file_content_parser(file_content):
     for line in file_content.split("\n")[1:]:
         if line.startswith("#") or not line.strip():
@@ -78,17 +83,37 @@ def write_word_list(words, filepath):
             writer.writerow((word[0], word[1]))
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Generate the CSV for later fixing missing umlauts."
+    )
+    parser.add_argument(
+        "source_dictionary",
+        type=str,
+        help="the dictionary to use for generating the CSV file",
+    )
+    parser.add_argument(
+        "output_file",
+        type=str,
+        help="where the generated csv file should be saved",
+    )
+    parser.add_argument(
+        "-e",
+        "--encoding",
+        default="utf-8",
+        help="the encoding of the dictionary",
+    )
+
+    return parser.parse_args()
+
+
 UMLAUTS = tuple(chain.from_iterable(map(umlaut_variations, "äöüßÄÖÜ")))
 
 if __name__ == "__main__":
-    source_file = sys.argv[1]
+    args = parse_args()
 
-    if is_zipfile(source_file):
-        read_zipfile(source_file)
-    else:
-        with open(source_file, "rb") as f:
-            file_content = f.read()
-
-    file_content = file_content.decode("iso-8859-1")
+    read_dictionary = read_zipfile if is_zipfile(args.source_dictionary) else read_file
+    file_content = read_dictionary(args.source_dictionary)
+    file_content = file_content.decode(args.encoding)
     words = generate_word_list(file_content_parser(file_content))
-    write_word_list(words, sys.argv[2])
+    write_word_list(words, args.output_file)
