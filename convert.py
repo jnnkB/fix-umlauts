@@ -1,20 +1,19 @@
 import sys
 import unicodedata
 from string import punctuation
-import tempfile
 from zipfile import ZipFile, is_zipfile
+from itertools import chain
+import csv
 
-UMLAUTS = list(map(lambda x: x.encode(), "äöüßÄÖÜ"))
-UMLAUTS += list(map(lambda x: unicodedata.normalize("NFD", x).encode(), "äöüßÄÖÜ"))
-words = []
 
-source_file = sys.argv[1]
-utf8_file = tempfile.mkstemp()
-extracted_dict_file = tempfile.mkstemp()
+def umlaut_variations(umlaut):
+    return (
+        unicodedata.normalize("NFC", umlaut),
+        unicodedata.normalize("NFD", umlaut),
+    )
 
-BLOCKSIZE = 1048576
 
-if is_zipfile(source_file):
+def read_zipfile(source_file):
     with ZipFile(source_file) as myzip:
         possible_files = list(
             filter(lambda x: x.filename.endswith("_frami.dic"), myzip.infolist())
@@ -45,32 +44,51 @@ if is_zipfile(source_file):
 
         print(f"Using file {dict_file.filename}")
 
-        file_content = myzip.read(dict_file)
-else:
-    with open(source_file, "rb") as f:
-        file_content = f.read()
+        return myzip.read(dict_file)
 
 
-file_content = file_content.decode("iso-8859-1")
-file_content = file_content.encode()
+def file_content_parser(file_content):
+    for line in file_content.split("\n")[1:]:
+        if line.startswith("#") or not line.strip():
+            continue
+
+        yield line.split("/", maxsplit=1)[0]
 
 
-for line in file_content.split(b"\n")[1:]:
-    if line.startswith(b"#") or line == "\t":
-        continue
+def generate_word_list(iterator):
+    for word in iterator:
+        if punctuation in word or len(word) < 2:
+            continue
 
-    word = line.split(b"/", maxsplit=1)[0]
-    if punctuation.encode() in word or len(word.decode()) < 2:
-        continue
-
-    for umlaut in UMLAUTS:
-        if umlaut in word:
-            words.append(word)
-            break
-
-with open(sys.argv[2], "wb") as f:
-    for word in words:
-        new_word = word
         for umlaut in UMLAUTS:
-            new_word = new_word.replace(umlaut, "�".encode())
-        f.write(new_word.strip() + b";" + word + b"\n")
+            if umlaut in word:
+                new_word = word
+                for umlaut in UMLAUTS:
+                    new_word = new_word.replace(umlaut, "�")
+                yield (word, new_word)
+                break
+
+
+def write_word_list(words, filepath):
+    with open(filepath, "w") as csvfile:
+        for word in words:
+            writer = csv.writer(
+                csvfile, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
+            writer.writerow((word[0], word[1]))
+
+
+UMLAUTS = tuple(chain.from_iterable(map(umlaut_variations, "äöüßÄÖÜ")))
+
+if __name__ == "__main__":
+    source_file = sys.argv[1]
+
+    if is_zipfile(source_file):
+        read_zipfile(source_file)
+    else:
+        with open(source_file, "rb") as f:
+            file_content = f.read()
+
+    file_content = file_content.decode("iso-8859-1")
+    words = generate_word_list(file_content_parser(file_content))
+    write_word_list(words, sys.argv[2])
