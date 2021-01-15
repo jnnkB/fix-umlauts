@@ -13,3 +13,5 @@ The second one `fix.py` is used to fix the umlauts in a file. It needs two argum
 ```
 $ python3 fix.py <generated_file> <file_to_fix>
 ```
+
+On both commands you can call for help via `--help`.
