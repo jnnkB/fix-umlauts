@@ -4,9 +4,9 @@ This little project can be used to fix missing umlauts that occurred do to encod
 
 ```
 $ python3 convert.py <dictionary> <output_file>
-``` 
+```
 
-The second one is used to fix the umlauts in a file. It needs two arguments: the file we generated before and the file to fix. 
+The second one is used to fix the umlauts in a file. It needs two arguments: the file we generated before and the file to fix.
 
 ```
 $ python3 fix.py <generated_file> <file_to_fix>

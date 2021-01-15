@@ -1,9 +1,10 @@
-import unicodedata
-from string import punctuation
-from zipfile import ZipFile, is_zipfile
-from itertools import chain
-import csv
 import argparse
+import csv
+import unicodedata
+from itertools import chain
+from string import punctuation
+from zipfile import is_zipfile
+from zipfile import ZipFile
 
 
 def umlaut_variations(umlaut):
@@ -93,15 +94,10 @@ def parse_args():
         help="the dictionary to use for generating the CSV file",
     )
     parser.add_argument(
-        "output_file",
-        type=str,
-        help="where the generated csv file should be saved",
+        "output_file", type=str, help="where the generated csv file should be saved",
     )
     parser.add_argument(
-        "-e",
-        "--encoding",
-        default="utf-8",
-        help="the encoding of the dictionary",
+        "-e", "--encoding", default="utf-8", help="the encoding of the dictionary",
     )
 
     return parser.parse_args()
