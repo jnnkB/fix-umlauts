@@ -1,0 +1,35 @@
+minimum_pre_commit_version: 1.21.0
+repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+
+  # reorder Python imports
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.3.0
+    hooks:
+      - id: reorder-python-imports
+
+  # format Python code with black
+  - repo: https://github.com/ambv/black
+    rev: 19.10b0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-docstring-first
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: detect-private-key
+      - id: mixed-line-ending
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.2
+    hooks:
+      - id: flake8
